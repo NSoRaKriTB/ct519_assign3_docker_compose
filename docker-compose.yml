@@ -1,15 +1,35 @@
-version: '3'
-services:
-  container1:
-    build:
-      context: ./Container1
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
+version: '3.8'
 
-  container2:
-    image: nginx:alpine
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
     ports:
       - "80:80"
     volumes:
-      - ./Container2:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - container1
+      - container2
+    networks:
+      - webnet
+
+  container1:
+    build:
+      context: ./container1
+    container_name: container1
+    networks:
+      - webnet
+
+  container2:
+    build:
+      context: ./container2
+    container_name: container2
+    networks:
+      - webnet
+    ports:
+      - "8000:80"
+
+networks:
+  webnet:
+    driver: bridge
